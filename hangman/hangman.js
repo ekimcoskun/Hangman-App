@@ -1,59 +1,53 @@
-const Hangman = function (word, remainingGuess) {
-    this.word = word.toLowerCase().split('')
-    this.remainingGuess = remainingGuess
-    this.guessedLetters = []
-    this.status = "playing"
-}
-Hangman.prototype.getPuzzle = function () {
-    let puzzle = ''
+class Hangman {
+    constructor(word, remainingGuess) {
+        this.word = word.toLowerCase().split('')
+        this.remainingGuess = remainingGuess
+        this.guessedLetters = []
+        this.status = "playing"
+    }
+    get puzzle() {
+        let puzzle = ''
 
-    this.word.forEach((letter) => {
-        if (this.guessedLetters.includes(letter) || letter === ' ') {
-            puzzle = puzzle + letter
+        this.word.forEach((letter) => {
+            if (this.guessedLetters.includes(letter) || letter === ' ') {
+                puzzle = puzzle + letter
+            } else {
+                puzzle = puzzle + '*'
+            }
+        })
+        return puzzle
+    }
+    reCalculate() {
+        if (this.remainingGuess === 0) {
+            this.status = 'failed'
+        } else if (this.puzzle.includes('*') && this.remainingGuess !== 0) {
+            this.status = 'playing'
         } else {
-            puzzle = puzzle + '*'
+            this.status = 'finished'
         }
-    })
-    return puzzle
-}
-
-Hangman.prototype.reCalculate = function () {
-
-    if (this.remainingGuess === 0) {
-        this.status = 'failed'
-    } else if (this.getPuzzle().includes('*') && this.remainingGuess !== 0) {
-        this.status = 'playing'
-    } else {
-        this.status = 'finished'
     }
-}
+    makeGuess(guess) {
+        guess = guess.toLowerCase()
+        const isUnique = !this.guessedLetters.includes(guess)
+        const isBadGuess = !this.word.includes(guess)
 
-Hangman.prototype.makeGuess = function (guess) {
-    
-    guess = guess.toLowerCase()
-    const isUnique = !this.guessedLetters.includes(guess)
-    const isBadGuess = !this.word.includes(guess)
-
-    if (isUnique) {
-        this.guessedLetters.push(guess)
+        if (isUnique) {
+            this.guessedLetters.push(guess)
+        }
+        if (isUnique && isBadGuess) {
+            this.remainingGuess--
+        }
+        this.reCalculate()
     }
-    if (isUnique && isBadGuess) {
-        this.remainingGuess--
+    get statusMessage() {
+        if (this.status === 'playing') {
+            return `Playing -> Guesses Left: ${this.remainingGuess}`
+        }
+        if (this.status === 'failed') {
+            return `Failed -> Nice try! The word was "${this.word.join('')}"`
+        }
+        if (this.status === 'finished') {
+            return `Finished -> Great work! You guessed the word`
+        }
     }
-    this.reCalculate()
-}
-
-Hangman.prototype.message = function () {
-    let mess = `Playing -> Guesses Left: ${this.remainingGuess}`
-
-    if(this.status === 'playing'){
-        mess = `Playing -> Guesses Left: ${this.remainingGuess}`
-    }
-    if(this.status === 'failed'){
-        mess = `Failed -> Nice try! The word was "${this.word.join('')}"`
-    }
-    if(this.status === 'finished'){
-        mess = `Finished -> Great work! You guessed the word`
-    }
-    return mess
 }
